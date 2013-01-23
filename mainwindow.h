@@ -2,6 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTimer>
+
+#include "manager.h"
+class Manager;
+
 
 namespace Ui {
 class MainWindow;
@@ -17,6 +22,12 @@ public:
     
 private:
     Ui::MainWindow *ui;
+    Manager *m_manager;
+    QTimer *m_refreshTimer;
+
+private slots:
+    void refreshUI();
+    void addDevice(int id);
 };
 
 #endif // MAINWINDOW_H
