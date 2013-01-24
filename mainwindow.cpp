@@ -4,7 +4,7 @@
 #include "ui_mainwindow.h"
 
 
-const int REFRESH_TIME = 500; // == 500ms
+const int REFRESH_TIME = 200; // == 300ms
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -34,7 +34,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::refreshUI() {
     Device *d = m_manager->getDeviceByID(0);
-    QPair<float,float> vals = d->getValues();
+
+    QPair<float,float> vals;
+
+    // HACK
+    while (vals.first == 0)
+         vals = d->getValues();
 
     //this->setWindowTitle(QString::number(vals.first));
     qDebug() << "hrv:" << vals.first << "; scl:" << vals.second;

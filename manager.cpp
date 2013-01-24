@@ -51,7 +51,7 @@
 
 
 Manager::Manager(QObject *parent) :
-    QObject(parent)
+    QThread(parent)
 {
     if (!(m_fd = lightstone_create())) {
         qWarning() << tr("] Can't create lightstone file descriptor");
@@ -109,6 +109,10 @@ Manager::~Manager() {
     lightstone_delete(m_fd);
 }
 
+
+void Manager::run() {
+
+}
 
 const QString Manager::getLightstoneErr(int err) {
     switch (err) {

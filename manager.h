@@ -2,6 +2,7 @@
 #define MANAGER_H
 
 #include <QObject>
+#include <QThread>
 #include <QList>
 
 #include <lightstone/lightstone.h>
@@ -10,7 +11,7 @@
 class Device;
 
 
-class Manager : public QObject
+class Manager : public QThread
 {
     Q_OBJECT
 public:
@@ -18,6 +19,9 @@ public:
     ~Manager();
 
     Device* getDeviceByID(int id);
+
+protected:
+    void run();
     
 private:
     QList<Device*> m_devices;

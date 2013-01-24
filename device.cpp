@@ -22,10 +22,6 @@ QPair<float,float> Device::getValues() {
 
     QPair<float,float> vals;
 
-    //Err!
-    if (info.hrv < 0 || info.scl < 0)
-        return vals;
-
     vals.first = info.hrv;
     vals.second = info.scl;
     return vals;
