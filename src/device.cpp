@@ -1,8 +1,8 @@
 #include <QDebug>
 #include "device.h"
 
-const int TIMEOUT = 400; // [ms]
-const int VALS_FOR_AVERAGE = 4;
+const int TIMEOUT = 0; // [ms]
+const int VALS_FOR_AVERAGE = 1;
 
 Device::Device(lightstone *fd, int id, QObject *parent) :
     QThread(parent)

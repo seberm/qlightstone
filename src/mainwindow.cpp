@@ -3,7 +3,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-const int REFRESH_INTERVAL = 200; // [ms]
+const int REFRESH_INTERVAL = 50; // [ms]
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -24,9 +24,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     m_basePlot = new QwtPlot(this);
+    m_basePlot->setAxisAutoScale(0);
     m_curveHRV = new QwtPlotCurve(tr("HRV"));
     m_curveHRV->setPen(QPen(Qt::red));
     m_curveSCL = new QwtPlotCurve(tr("SCL"));
+    m_curveSCL->setPen(QPen(Qt::blue));
 
     m_curveHRV->attach(m_basePlot);
     m_curveSCL->attach(m_basePlot);
@@ -40,8 +42,11 @@ MainWindow::MainWindow(QWidget *parent) :
     m_refreshTimer->start(REFRESH_INTERVAL);
 
 
-    m_vectXHRV = new QVector<double>(100);
+    m_vectTime = new QVector<double>(100);
     m_vectYHRV = new QVector<double>(100);
+    m_vectYSCL = new QVector<double>(100);
+
+//hack
 counter = 0;
 }
 
@@ -53,11 +58,18 @@ MainWindow::~MainWindow()
 
 
 void MainWindow::refreshUI() {
-    m_vectXHRV->append(counter);
-    counter += 0.2;
-    m_vectYHRV->append(m_hrv);
+    //small hack
+    if (m_hrv < 1.5)
+        m_vectYHRV->append(m_hrv);
+    else
+        return;
 
-    m_curveHRV->setData(*m_vectXHRV, *m_vectYHRV);
+    m_vectYSCL->append(m_scl);
+    m_vectTime->append(counter);
+    counter += 0.2;
+
+    m_curveHRV->setData(*m_vectTime, *m_vectYHRV);
+    m_curveSCL->setData(*m_vectTime, *m_vectYSCL);
     m_basePlot->replot();
 }
 

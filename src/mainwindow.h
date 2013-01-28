@@ -32,9 +32,10 @@ private:
     QwtPlotCurve *m_curveHRV;
     QwtPlotCurve *m_curveSCL;
 
-    QVector<double> *m_vectXHRV;
+    QVector<double> *m_vectTime;
     float counter;
     QVector<double> *m_vectYHRV;
+    QVector<double> *m_vectYSCL;
 
     float m_hrv;
     float m_scl;
