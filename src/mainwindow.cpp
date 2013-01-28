@@ -3,6 +3,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+const int REFRESH_INTERVAL = 200; // [ms]
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -19,6 +21,28 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(m_manager, SIGNAL(newValues(int,float,float)),
             this, SLOT(refreshValues(int,float,float)));
+
+
+    m_basePlot = new QwtPlot(this);
+    m_curveHRV = new QwtPlotCurve(tr("HRV"));
+    m_curveHRV->setPen(QPen(Qt::red));
+    m_curveSCL = new QwtPlotCurve(tr("SCL"));
+
+    m_curveHRV->attach(m_basePlot);
+    m_curveSCL->attach(m_basePlot);
+
+    ui->layoutTabPlots->addWidget(m_basePlot);
+
+    m_refreshTimer = new QTimer(this);
+    connect(m_refreshTimer, SIGNAL(timeout()),
+            this, SLOT(refreshUI()));
+
+    m_refreshTimer->start(REFRESH_INTERVAL);
+
+
+    m_vectXHRV = new QVector<double>(100);
+    m_vectYHRV = new QVector<double>(100);
+counter = 0;
 }
 
 
@@ -28,11 +52,24 @@ MainWindow::~MainWindow()
 }
 
 
+void MainWindow::refreshUI() {
+    m_vectXHRV->append(counter);
+    counter += 0.2;
+    m_vectYHRV->append(m_hrv);
+
+    m_curveHRV->setData(*m_vectXHRV, *m_vectYHRV);
+    m_basePlot->replot();
+}
+
+
 void MainWindow::refreshValues(int deviceID, float hrv, float scl) {
     Q_UNUSED(deviceID);
 
-    ui->lblHRV->setText(QString::number(hrv, 'f', 6));
-    ui->lblSCL->setText(QString::number(scl, 'f', 6));
+    m_hrv = hrv;
+    m_scl = scl;
+
+    ui->lblHRV->setText(QString::number(m_hrv, 'f', 6));
+    ui->lblSCL->setText(QString::number(m_scl, 'f', 6));
 }
 
 

@@ -9,7 +9,8 @@ QT       += core gui
 TARGET = qlightstone
 TEMPLATE = app
 
-LIBS += -L/usr/local/lib -llightstone
+LIBS += -L/usr/local/lib -llightstone \
+        -lqwt
 
 
 SOURCES += main.cpp\

@@ -2,6 +2,10 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTimer>
+#include <QVector>
+#include <qwt/qwt_plot.h>
+#include <qwt/qwt_plot_curve.h>
 
 #include "manager.h"
 class Manager;
@@ -22,9 +26,22 @@ public:
 private:
     Ui::MainWindow *ui;
     Manager *m_manager;
+    QTimer *m_refreshTimer;
+
+    QwtPlot *m_basePlot;
+    QwtPlotCurve *m_curveHRV;
+    QwtPlotCurve *m_curveSCL;
+
+    QVector<double> *m_vectXHRV;
+    float counter;
+    QVector<double> *m_vectYHRV;
+
+    float m_hrv;
+    float m_scl;
 
 private slots:
     void refreshValues(int deviceID, float hrv, float scl);
+    void refreshUI();
     void addDevice(int deviceID);
 };
 
