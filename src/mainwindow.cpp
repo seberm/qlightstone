@@ -13,7 +13,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     connect(ui->actionQuit, SIGNAL(triggered()),
             qApp, SLOT(quit()));
-
+    connect(ui->actionPause, SIGNAL(triggered()),
+            this, SLOT(pauseUI()));
+    connect(ui->btnPause, SIGNAL(clicked()),
+            this, SLOT(pauseUI()));
+    connect(ui->actionReset, SIGNAL(triggered()),
+            this, SLOT(resetUI()));
+    connect(ui->btnReset, SIGNAL(clicked()),
+            this, SLOT(resetUI()));
 
     m_manager = new Manager(this);
     connect(m_manager, SIGNAL(newDeviceFound(int)),
@@ -24,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     m_basePlot = new QwtPlot(this);
-    m_basePlot->setAxisAutoScale(0);
+    m_basePlot->setAxisScale(0, 0, 3);
     m_curveHRV = new QwtPlotCurve(tr("HRV"));
     m_curveHRV->setPen(QPen(Qt::red));
     m_curveSCL = new QwtPlotCurve(tr("SCL"));
@@ -48,6 +55,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 //hack
 counter = 0;
+m_paused = false;
 }
 
 
@@ -59,17 +67,41 @@ MainWindow::~MainWindow()
 
 void MainWindow::refreshUI() {
     //small hack
-    if (m_hrv < 1.5)
+    if (m_hrv < 5)
         m_vectYHRV->append(m_hrv);
     else
         return;
 
     m_vectYSCL->append(m_scl);
     m_vectTime->append(counter);
-    counter += 0.2;
+    counter += 1;
 
     m_curveHRV->setData(*m_vectTime, *m_vectYHRV);
     m_curveSCL->setData(*m_vectTime, *m_vectYSCL);
+    m_basePlot->replot();
+}
+
+
+void MainWindow::pauseUI() {
+    if (!m_paused) {
+        m_refreshTimer->stop();
+        ui->btnPause->setText(tr("Continue"));
+        ui->actionPause->setText(tr("&Continue"));
+        m_paused = true;
+    } else {
+        m_refreshTimer->start();
+        ui->btnPause->setText(tr("Pause"));
+        ui->actionPause->setText(tr("&Pause"));
+        m_paused = false;
+    }
+}
+
+
+void MainWindow::resetUI() {
+    m_vectYHRV->resize(0);
+    m_vectYSCL->resize(0);
+    m_vectTime->resize(0);
+    counter = 0;
     m_basePlot->replot();
 }
 

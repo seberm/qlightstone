@@ -52,6 +52,13 @@
        <property name="sizeConstraint">
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="btnReset">
+         <property name="text">
+          <string>Reset</string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="0">
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
@@ -124,10 +131,10 @@
          </item>
         </layout>
        </item>
-       <item row="1" column="0">
-        <widget class="QPushButton" name="btnReset">
+       <item row="2" column="0">
+        <widget class="QPushButton" name="btnPause">
          <property name="text">
-          <string>Reset</string>
+          <string>Pause</string>
          </property>
         </widget>
        </item>
@@ -153,7 +160,15 @@
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
+   <widget class="QMenu" name="menu_Control">
+    <property name="title">
+     <string>&amp;Control</string>
+    </property>
+    <addaction name="actionPause"/>
+    <addaction name="actionReset"/>
+   </widget>
    <addaction name="menuMenu"/>
+   <addaction name="menu_Control"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -178,6 +193,16 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+C</string>
+   </property>
+  </action>
+  <action name="actionPause">
+   <property name="text">
+    <string>&amp;Pause</string>
+   </property>
+  </action>
+  <action name="actionReset">
+   <property name="text">
+    <string>&amp;Reset</string>
    </property>
   </action>
  </widget>

@@ -33,16 +33,20 @@ private:
     QwtPlotCurve *m_curveSCL;
 
     QVector<double> *m_vectTime;
-    float counter;
+    int counter;
     QVector<double> *m_vectYHRV;
     QVector<double> *m_vectYSCL;
 
     float m_hrv;
     float m_scl;
 
+    bool m_paused;
+
 private slots:
     void refreshValues(int deviceID, float hrv, float scl);
     void refreshUI();
+    void pauseUI();
+    void resetUI();
     void addDevice(int deviceID);
 };
 
