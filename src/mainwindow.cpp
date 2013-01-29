@@ -4,6 +4,7 @@
 #include "ui_mainwindow.h"
 
 const int REFRESH_INTERVAL = 50; // [ms]
+const int PLOT_SIZE = 200;
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -47,9 +48,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_refreshTimer->start(REFRESH_INTERVAL);
 
-    m_vectTime = new QVector<double>(200);
-    m_vectYHRV = new QVector<double>(200);
-    m_vectYSCL = new QVector<double>(200);
+    m_vectTime = new QVector<double>(PLOT_SIZE);
+    m_vectYHRV = new QVector<double>(PLOT_SIZE);
+    m_vectYSCL = new QVector<double>(PLOT_SIZE);
 
 //hack
 counter = 0;
@@ -67,13 +68,13 @@ void MainWindow::refreshUI() {
     if (m_hrv > 4)
         return;
 
-    if (m_vectTime->count() >= 200) {
+    if (m_vectTime->count() >= PLOT_SIZE) {
         m_vectYHRV->pop_front();
         m_vectYSCL->pop_front();
         m_vectTime->pop_front();
     }
 
-    m_basePlot->setAxisScale(2, counter - 200, counter);
+    m_basePlot->setAxisScale(2, counter - PLOT_SIZE, counter);
 
     m_vectYHRV->append(m_hrv);
     m_vectYSCL->append(m_scl);
