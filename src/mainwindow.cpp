@@ -30,8 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(refreshValues(int,float,float)));
 
 
-    m_basePlot = new QwtPlot(this);
-    m_basePlot->setAxisScale(0, 0, 3);
+    m_basePlot = new BasePlot(this);
     m_curveHRV = new QwtPlotCurve(tr("HRV"));
     m_curveHRV->setPen(QPen(Qt::red));
     m_curveSCL = new QwtPlotCurve(tr("SCL"));
@@ -48,14 +47,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_refreshTimer->start(REFRESH_INTERVAL);
 
-
-    m_vectTime = new QVector<double>(100);
-    m_vectYHRV = new QVector<double>(100);
-    m_vectYSCL = new QVector<double>(100);
+    m_vectTime = new QVector<double>(200);
+    m_vectYHRV = new QVector<double>(200);
+    m_vectYSCL = new QVector<double>(200);
 
 //hack
 counter = 0;
-m_paused = false;
+    m_paused = false;
 }
 
 
@@ -66,12 +64,18 @@ MainWindow::~MainWindow()
 
 
 void MainWindow::refreshUI() {
-    //small hack
-    if (m_hrv < 5)
-        m_vectYHRV->append(m_hrv);
-    else
+    if (m_hrv > 4)
         return;
 
+    if (m_vectTime->count() >= 200) {
+        m_vectYHRV->pop_front();
+        m_vectYSCL->pop_front();
+        m_vectTime->pop_front();
+    }
+
+    m_basePlot->setAxisScale(2, counter - 200, counter);
+
+    m_vectYHRV->append(m_hrv);
     m_vectYSCL->append(m_scl);
     m_vectTime->append(counter);
     counter += 1;

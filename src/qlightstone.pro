@@ -16,10 +16,12 @@ LIBS += -L/usr/local/lib -llightstone \
 SOURCES += main.cpp\
         mainwindow.cpp \
     manager.cpp \
-    device.cpp
+    device.cpp \
+    baseplot.cpp
 
 HEADERS  += mainwindow.h \
     manager.h \
-    device.h
+    device.h \
+    baseplot.h
 
 FORMS    += mainwindow.ui

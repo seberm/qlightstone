@@ -4,11 +4,11 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QVector>
-#include <qwt/qwt_plot.h>
-#include <qwt/qwt_plot_curve.h>
 
+#include "baseplot.h"
 #include "manager.h"
 class Manager;
+class BasePlot;
 
 
 namespace Ui {
@@ -28,7 +28,7 @@ private:
     Manager *m_manager;
     QTimer *m_refreshTimer;
 
-    QwtPlot *m_basePlot;
+    BasePlot *m_basePlot;
     QwtPlotCurve *m_curveHRV;
     QwtPlotCurve *m_curveSCL;
 
