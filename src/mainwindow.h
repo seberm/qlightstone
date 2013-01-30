@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QTimer>
+#include <QLabel>
 #include <QVector>
 
 #include "baseplot.h"
@@ -41,13 +42,21 @@ private:
     float m_scl;
 
     bool m_paused;
+    bool m_connected;
+
+    QLabel *m_lblStatus;
+    void createStatusBar();
+    void updateStatusBar();
 
 private slots:
     void refreshValues(int deviceID, float hrv, float scl);
     void refreshUI();
-    void pauseUI();
+    void pauseContinueUI();
     void resetUI();
+    void connectDisconnectDevices();
     void addDevice(int deviceID);
+    void showHideHRV(int state);
+    void showHideSCL(int state);
 };
 
 #endif // MAINWINDOW_H

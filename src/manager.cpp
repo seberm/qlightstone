@@ -6,25 +6,52 @@
 Manager::Manager(QObject *parent) :
     QObject(parent)
 {
+    m_fd = NULL;
+
+    // Automatically initialize all devices
+    connectDevices();
+}
+
+
+Manager::~Manager() {
+    disconnectDevices();
+}
+
+
+bool Manager::connectDevices() {
+    // Already initialized and connected
+    if (m_fd)
+        return false;
+
     if (!(m_fd = lightstone_create())) {
         qWarning() << tr("] Can't create lightstone file descriptor");
-        return;
+        return false;
     }
 
     int count = lightstone_get_count(m_fd);
     if (!count) {
+        lightstone_delete(m_fd);
+        m_fd = NULL;
         qWarning() << tr("] No lightstone HW connected!");
-        return;
+        return false;
     }
 
+    /* For now... support only for one device! */
     int ret = -1;
+    /*
     for (int i = 0; i < count; ++i) {
+    */
+    int i = 0;
         qDebug() << tr("] Opening device: %1").arg(i);
         ret = lightstone_open(m_fd, i);
         if (ret < 0) {
             qWarning() << tr("] Cannot open lightstone: %1").arg(i);
             qWarning() << this->getLightstoneErr(ret);
-            return;
+
+            lightstone_delete(m_fd);
+            m_fd = NULL;
+            return false;
+            //continue;
         }
 
         Device *d = new Device(m_fd, i);
@@ -39,43 +66,29 @@ Manager::Manager(QObject *parent) :
         emit newDeviceFound(d->getID());
 
         d->start();
-    }
+    //}
+
+    return (bool) m_fd;
 }
 
 
-Manager::~Manager() {
+void Manager::disconnectDevices() {
+    if (!m_fd)
+        return;
+
     foreach (Device *d, m_devices)
         delete d;
 
     // Close and delete lightstone device
     lightstone_delete(m_fd);
+
+    m_fd = NULL;
 }
 
 
-/*
-void Manager::run() {
-  //thread test
-        QThread *thread = new QThread(this);
-
-        connect(thread, SIGNAL(started()), d, SLOT(lookUpSerial()));
-        connect(d, SIGNAL(serialFound(QString)), thread, SLOT(quit()));
-        //connect(workerThread, SIGNAL(finished()), workerThread, SLOT(deleteLater()));
-        d->moveToThread(thread);
-
-        workerThread->start();
-    foreach (Device *d, m_devices) {
-        QThread *workerThread = new QThread(this);
-
-        connect(workerThread, SIGNAL(started()), d, SLOT(lookUpSerial()));
-        connect(d, SIGNAL(serialFound(QString)), workerThread, SLOT(quit()));
-        //connect(workerThread, SIGNAL(finished()), workerThread, SLOT(deleteLater()));
-        d->moveToThread(workerThread);
-
-        // Starts an event loop, and emits workerThread->started()
-        workerThread->start();
-    }
+bool Manager::isConnected() {
+    return (bool) m_fd;
 }
-*/
 
 
 const QString Manager::getLightstoneErr(int err) {
