@@ -2,7 +2,6 @@
 #include "device.h"
 
 const int TIMEOUT = 0; // [ms]
-const int VALS_FOR_AVERAGE = 1;
 
 Device::Device(lightstone *fd, int id, QObject *parent) :
     QThread(parent)
@@ -29,16 +28,10 @@ void Device::readValues() {
     lightstone_info info;
     float hrv = 0;
     float scl = 0;
-    int count = 0;
 
-    for (count = 0; count < VALS_FOR_AVERAGE; ++count) {
-        info = lightstone_get_info(m_fd);
-        hrv += info.hrv;
-        scl += info.scl;
-    }
-
-    m_avgHRV = hrv / count;
-    m_avgSCL = scl / count;
+    info = lightstone_get_info(m_fd);
+    m_avgHRV = info.hrv;
+    m_avgSCL = info.scl;
 
     emit valuesFound(m_avgHRV, m_avgSCL);
 }

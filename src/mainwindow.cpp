@@ -76,8 +76,8 @@ void MainWindow::refreshUI() {
     m_vectTime->append(counter);
     counter += 1;
 
-    m_curveHRV->setData(*m_vectTime, *m_vectYHRV);
-    m_curveSCL->setData(*m_vectTime, *m_vectYSCL);
+    //m_curveHRV->setData(*m_vectTime, *m_vectYHRV);
+    //m_curveSCL->setData(*m_vectTime, *m_vectYSCL);
     m_basePlot->replot();
 }
 
