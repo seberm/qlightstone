@@ -4,6 +4,7 @@
 #include "ui_mainwindow.h"
 
 const int REFRESH_INTERVAL = 50; // [ms]
+const int PLOT_SIZE = 200;
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -14,13 +15,19 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionQuit, SIGNAL(triggered()),
             qApp, SLOT(quit()));
     connect(ui->actionPause, SIGNAL(triggered()),
-            this, SLOT(pauseUI()));
+            this, SLOT(pauseContinueUI()));
     connect(ui->btnPause, SIGNAL(clicked()),
-            this, SLOT(pauseUI()));
+            this, SLOT(pauseContinueUI()));
     connect(ui->actionReset, SIGNAL(triggered()),
             this, SLOT(resetUI()));
+    connect(ui->actionConnectDisconnect, SIGNAL(triggered()),
+            this, SLOT(connectDisconnectDevices()));
     connect(ui->btnReset, SIGNAL(clicked()),
             this, SLOT(resetUI()));
+    connect(ui->checkBoxShowHRV, SIGNAL(stateChanged(int)),
+            this, SLOT(showHideHRV(int)));
+    connect(ui->checkBoxShowSCL, SIGNAL(stateChanged(int)),
+            this, SLOT(showHideSCL(int)));
 
     m_manager = new Manager(this);
     connect(m_manager, SIGNAL(newDeviceFound(int)),
@@ -30,8 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(refreshValues(int,float,float)));
 
 
-    m_basePlot = new QwtPlot(this);
-    m_basePlot->setAxisScale(0, 0, 3);
+    m_basePlot = new BasePlot(this);
     m_curveHRV = new QwtPlotCurve(tr("HRV"));
     m_curveHRV->setPen(QPen(Qt::red));
     m_curveSCL = new QwtPlotCurve(tr("SCL"));
@@ -48,14 +54,18 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_refreshTimer->start(REFRESH_INTERVAL);
 
-
-    m_vectTime = new QVector<double>(100);
-    m_vectYHRV = new QVector<double>(100);
-    m_vectYSCL = new QVector<double>(100);
+    m_vectTime = new QVector<double>(PLOT_SIZE);
+    m_vectYHRV = new QVector<double>(PLOT_SIZE);
+    m_vectYSCL = new QVector<double>(PLOT_SIZE);
 
 //hack
 counter = 0;
-m_paused = false;
+    m_paused = false;
+    m_connected = m_manager->isConnected();
+    if (m_connected)
+        ui->actionConnectDisconnect->setText(tr("&Disconnect"));
+
+    createStatusBar();
 }
 
 
@@ -65,13 +75,35 @@ MainWindow::~MainWindow()
 }
 
 
+void MainWindow::createStatusBar() {
+    m_lblStatus = new QLabel(ui->statusBar);
+    m_lblStatus->setMinimumSize(m_lblStatus->sizeHint());
+
+    ui->statusBar->addWidget(m_lblStatus, 20);
+    updateStatusBar();
+}
+
+
+void MainWindow::updateStatusBar() {
+    QString status = m_connected ? tr("Connected") : tr("Disconnected");
+    m_lblStatus->setText(tr("Status: %1").arg(status));
+}
+
+
 void MainWindow::refreshUI() {
-    //small hack
-    if (m_hrv < 5)
-        m_vectYHRV->append(m_hrv);
-    else
+    // Sometimes we get bad values - we don't want to show them
+    if (m_hrv > 4 || m_hrv < 1e-1)
         return;
 
+    if (m_vectTime->count() >= PLOT_SIZE) {
+        m_vectYHRV->pop_front();
+        m_vectYSCL->pop_front();
+        m_vectTime->pop_front();
+    }
+
+    m_basePlot->setAxisScale(2, counter - PLOT_SIZE, counter);
+
+    m_vectYHRV->append(m_hrv);
     m_vectYSCL->append(m_scl);
     m_vectTime->append(counter);
     counter += 1;
@@ -82,7 +114,7 @@ void MainWindow::refreshUI() {
 }
 
 
-void MainWindow::pauseUI() {
+void MainWindow::pauseContinueUI() {
     if (!m_paused) {
         m_refreshTimer->stop();
         ui->btnPause->setText(tr("Continue"));
@@ -94,6 +126,20 @@ void MainWindow::pauseUI() {
         ui->actionPause->setText(tr("&Pause"));
         m_paused = false;
     }
+}
+
+
+void MainWindow::connectDisconnectDevices() {
+    if (!m_connected) {
+        if ((m_connected = m_manager->connectDevices()) == true)
+            ui->actionConnectDisconnect->setText(tr("&Disconnect"));
+    } else {
+        m_manager->disconnectDevices();
+        ui->actionConnectDisconnect->setText(tr("&Connect"));
+        m_connected = false;
+    }
+
+    updateStatusBar();
 }
 
 
@@ -114,6 +160,22 @@ void MainWindow::refreshValues(int deviceID, float hrv, float scl) {
 
     ui->lblHRV->setText(QString::number(m_hrv, 'f', 6));
     ui->lblSCL->setText(QString::number(m_scl, 'f', 6));
+}
+
+
+void MainWindow::showHideHRV(int state) {
+    if (state == Qt::Checked)
+        m_curveHRV->attach(m_basePlot);
+    else
+        m_curveHRV->detach();
+}
+
+
+void MainWindow::showHideSCL(int state) {
+    if (state == Qt::Checked)
+        m_curveSCL->attach(m_basePlot);
+    else
+        m_curveSCL->detach();
 }
 
 

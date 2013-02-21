@@ -17,6 +17,10 @@ public:
     explicit Manager(QObject *parent = 0);
     ~Manager();
 
+    bool connectDevices();
+    void disconnectDevices();
+    bool isConnected();
+
     Device* getDeviceByID(int deviceID);
 
 private:
